@@ -179,7 +179,7 @@
       top: 120px; left: 24px; right: 24px;
       z-index: 200;
       background: var(--color-bg);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
       opacity: 0; pointer-events: none;
       transform: translateY(100vh);
@@ -306,22 +306,85 @@
       font-family: var(--font-mono); font-size: var(--text-xs);
       color: var(--color-text-tertiary);
     }
+    @media (max-width: 768px) {
+      footer {
+        flex-direction: column; align-items: flex-start;
+        gap: 6px; padding: var(--space-md);
+      }
+    }
+
+    /* ── Mobile header ───────────────────────────────────────── */
+    .mobile-header {
+      display: none;
+      position: sticky; top: 0; z-index: 100;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-sm) var(--space-md);
+      align-items: center; justify-content: space-between;
+      transition: background var(--transition);
+    }
+    .mobile-header-name {
+      font-size: var(--text-sm); font-weight: var(--weight-medium);
+      color: var(--color-text-primary);
+    }
+    .mobile-nav {
+      display: flex; gap: var(--space-md); list-style: none; align-items: center;
+    }
+    .mobile-nav a {
+      font-size: var(--text-sm); font-weight: var(--weight-medium);
+      color: var(--color-text-secondary);
+      transition: color var(--transition);
+    }
+    .mobile-nav a:hover { color: var(--color-accent); }
 
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 768px) {
       body { margin-right: 0; }
       .sidebar { display: none; }
-      .work-title { font-size: var(--text-2xl); }
-      .writing-item { grid-template-columns: 48px 1fr; }
-    }
-    @media (max-width: 600px) {
+      .mobile-header { display: flex; }
+      .wrap { padding: 0 var(--space-md); }
+      #hero { padding: var(--space-lg) 0 var(--space-md); }
+      .hero-name { font-size: clamp(36px, 10vw, 64px); margin-bottom: var(--space-md); }
+      .hero-bio p { font-size: var(--text-base); }
       .section { padding: var(--space-lg) 0; }
-      #hero { padding: var(--space-lg) 0; }
+      .work-item { padding: var(--space-md) 0; }
+      .work-title { font-size: var(--text-2xl); }
+      .work-desc { font-size: var(--text-sm); margin-bottom: var(--space-md); }
+      .writing-item { grid-template-columns: 44px 1fr; gap: 0 var(--space-sm); }
+      .modal {
+        top: 64px; left: 0; right: 0;
+        border-radius: var(--radius-lg);
+      }
+      .modal-inner { padding: var(--space-lg) var(--space-md) var(--space-xl); }
+      .modal-body { grid-template-columns: 1fr; gap: var(--space-md); }
+      .modal-title { font-size: var(--text-xl); }
+      .modal-images { aspect-ratio: unset; height: 55vh; margin-bottom: var(--space-sm); }
+    }
+    @media (max-width: 480px) {
+      .mobile-nav a { font-size: var(--text-xs); }
+      .mobile-nav { gap: var(--space-sm); }
     }
 
   </style>
 </head>
 <body>
+
+<!-- ── Mobile header ─────────────────────────────────────── -->
+<header class="mobile-header">
+  <span class="mobile-header-name">Nisha Anthraper</span>
+  <ul class="mobile-nav">
+    <li><a href="#hero">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li>
+      <button class="theme-toggle" id="themeToggleMobile" aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </li>
+  </ul>
+</header>
 
 <!-- ── Sidebar ───────────────────────────────────────────── -->
 <aside class="sidebar">
@@ -637,6 +700,9 @@
     modal.classList.add('open');
     overlay.classList.add('open');
     document.documentElement.classList.add('modal-open');
+    document.body.style.top = `-${window.scrollY}px`;
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -645,7 +711,8 @@
     });
 
     setTimeout(() => {
-      maxScroll = Math.max(0, modal.offsetHeight - window.innerHeight + MODAL_TOP + MODAL_BOTTOM);
+      const top = window.innerWidth <= 768 ? 64 : MODAL_TOP;
+      maxScroll = Math.max(0, modal.offsetHeight - window.innerHeight + top + MODAL_BOTTOM);
       window.addEventListener('wheel', handleWheel, { passive: false });
       window.addEventListener('touchstart', handleTouchStart, { passive: true });
       window.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -661,6 +728,11 @@
     modal.classList.remove('open');
     overlay.classList.remove('open');
     document.documentElement.classList.remove('modal-open');
+    const scrollY = parseInt(document.body.style.top || '0') * -1;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollY);
     setTimeout(() => { modal.style.transform = ''; modalY = 0; }, 420);
   }
 
@@ -691,12 +763,13 @@
   const saved = localStorage.getItem('ds-theme') || 'light';
   html.dataset.theme = saved;
   icon.innerHTML = saved === 'light' ? MOON : SUN;
-  btn.addEventListener('click', () => {
-    const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  function applyTheme(next) {
     html.dataset.theme = next;
     localStorage.setItem('ds-theme', next);
     icon.innerHTML = next === 'light' ? MOON : SUN;
-  });
+  }
+  btn.addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
+  document.getElementById('themeToggleMobile').addEventListener('click', () => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark'));
 </script>
 </body>
 </html>

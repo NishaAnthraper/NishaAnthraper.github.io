@@ -141,9 +141,17 @@
       cursor: pointer;
       transition: background var(--transition);
       display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm);
+      user-select: none;
     }
     .project-item:hover { background: var(--color-bg-3); }
     .project-item.active { background: var(--color-bg-3); }
+    .project-item.drag-over { outline: 1px solid var(--color-accent); }
+    .project-item.dragging { opacity: 0.4; }
+    .project-drag-handle {
+      color: var(--color-text-tertiary); font-size: 12px; cursor: grab;
+      padding: 0 2px; flex-shrink: 0; line-height: 1;
+    }
+    .project-drag-handle:active { cursor: grabbing; }
     .project-item-name {
       font-size: var(--text-sm); color: var(--color-text-secondary);
       line-height: 1.4; flex: 1;
@@ -438,6 +446,7 @@
         <button class="btn btn-ghost" id="btnAddBox">+ Add image</button>
         <button class="btn btn-ghost" id="btnClearLayout">Clear all</button>
         <label class="snap-label"><input type="checkbox" id="snapToggle" /><span>Snap to grid</span></label>
+        <label class="snap-label"><input type="checkbox" id="lockAspect" /><span>Lock aspect ratio</span></label>
       </div>
       <div class="layout-canvas" id="layoutCanvas"></div>
 
@@ -476,15 +485,12 @@ const SEED = [
     id: 'avalara-workramp',
     title: "Evaluative UXR Study: Product Performance for Avalara's Learning Platform",
     year: '2023', type: 'UX Research', meta: 'UX Research · 2023',
-    description: 'Global evaluative study with 500+ users measuring product performance and surfacing usability gaps across a complex enterprise platform.',
+    description: 'Led a global mixed-methods study across 500+ users to establish a performance baseline and reprioritize the product roadmap around evidence.',
     sections: [
-      { label: 'Overview', content: "WorkRamp functions as Avalara's unified learning platform, consolidating previously dispersed departmental systems. The platform aimed to eliminate inconsistent usage patterns and improve data collection across the organization. This evaluative study measured product performance across three user groups — Learners, Managers, and Administrators — to identify usability gaps and surface a clear direction for improvement." },
-      { label: 'The Challenge', content: 'Despite implementation benefits, challenges emerged around inconsistent user engagement and adoption. The research sought to identify pain points and create a cohesive experience for Learner, Manager, and Administrator console users regardless of role, tenure, region, or department. Diverse departmental priorities required strategic communication and negotiation to align stakeholders on a shared research agenda.' },
-      { label: 'Solution', content: "A mixed-methods study designed to resolve the team's open questions with enough confidence to act. Research questions focused on three areas: usability issues challenging WorkRamp users, effectiveness of search and discovery methods, and whether content offerings met user knowledge needs. The approach combined heuristic evaluation, large-scale survey, and moderated interviews to triangulate findings across all three consoles." },
-      { label: 'Key Objectives', content: 'Improve User Engagement · Provide a Unified and User-Friendly Experience · Enhance Search and Discovery Capabilities · Ensure Content Relevance and Quality' },
-      { label: 'Research Questions', content: '1. What usability issues and challenges do users encounter while navigating WorkRamp?\n2. How effective are the search and discovery methods for finding content on the platform?\n3. Do the content offerings effectively meet the knowledge needs of users?' },
-      { label: 'Design Process', content: 'Conducted a heuristic evaluation of all three consoles. Ran a survey with 512 responses from a diverse cross-section of the workforce. Conducted 18 user interviews — 10 Learners, 5 Administrators, and 3 Managers — using remote usability testing sessions. Synthesized quantitative and qualitative data in parallel and presented findings as a prioritized action plan tied directly to the platform\'s adoption objectives.' },
-      { label: 'Results', content: 'Learners were found to overlook the filter icon, relying solely on quick search — pointing to a discoverability issue. Managers faced frustration due to limited permissions and views. Administrators lacked training resources for content creation. Findings directly informed the product roadmap, with improvements targeting enhanced user engagement and platform adoption, improved employee learning outcomes, empowered manager tracking capabilities, and streamlined administrative content management.' }
+      { label: 'Overview', content: "Avalara had consolidated its learning infrastructure into WorkRamp — one platform, three distinct user groups, and no clear picture of whether it was working. I led an evaluative study across Learners, Managers, and Administrators to establish a performance baseline and give the product team the evidence they needed to act." },
+      { label: 'Challenge', content: 'Adoption was inconsistent and anecdotal. Different departments had different complaints, different priorities, and different stakeholders with competing agendas. The real challenge wasn\'t the research — it was aligning a fragmented org around a shared understanding of the problem before we could solve it.' },
+      { label: 'Approach', content: 'I designed a mixed-methods study to triangulate across scale and depth: a heuristic evaluation of all three consoles, a survey with 512 respondents drawn from across the global workforce, and 18 moderated interviews with Learners, Managers, and Administrators. The method choices were deliberate — the survey gave us statistical confidence; the interviews gave us the why. Findings were synthesized into a prioritized action plan mapped directly to adoption goals, not a research report that would sit unread.' },
+      { label: 'Impact', content: 'The study surfaced three critical gaps: Learners were bypassing discovery entirely and relying on search alone; Managers were blocked by permission structures that made tracking impossible; Administrators had no onboarding for content creation. Each finding was tied to a specific product recommendation. The roadmap was reprioritized around these gaps — improving learning outcomes, enabling manager visibility, and reducing administrative friction at scale.' }
     ]
   },
   {
@@ -504,13 +510,12 @@ const SEED = [
     id: 'peerconnect',
     title: 'Enhancing Transfer Student Support with PeerConnect',
     year: '2022', type: 'UX Research · Product Strategy', meta: 'UX Research · Product Strategy · 2022',
-    description: 'Generative UXR study identifying unmet needs of transfer students, resulting in a peer-connection platform concept backed by evidence.',
+    description: 'Research and participatory design study that identified unmet needs of transfer students and resulted in a validated platform concept endorsed for pilot development.',
     sections: [
-      { label: 'Overview', content: 'Generative UXR study identifying unmet needs of transfer students, resulting in a peer-connection platform concept backed by evidence.' },
-      { label: 'The Challenge', content: 'Transfer students were falling through the cracks — existing support systems were built for first-year students and didn\'t address the specific navigational and social challenges of transferring mid-degree.' },
-      { label: 'Solution', content: 'PeerConnect — a platform concept pairing incoming transfer students with near-peer mentors who had recently navigated the same transition, addressing the social and informational gaps existing systems missed.' },
-      { label: 'Design Process', content: 'Interviews and diary studies with 30+ transfer students across two institutions. Affinity mapping revealed that the hardest part wasn\'t academic — it was knowing what you didn\'t know. Concept validated through two rounds of concept testing.' },
-      { label: 'Results', content: 'Platform concept endorsed by university administration for pilot development. Research findings presented to student services leadership and informed a revision of the existing transfer support program.' }
+      { label: 'Overview', content: 'Transfer students were underserved by systems designed for first-years. I led a research and participatory design study to identify their unmet needs and translate findings into PeerConnect — a peer-connection platform concept that earned university administration endorsement for pilot development.' },
+      { label: 'Challenge', content: 'Existing support systems weren\'t built for the navigational and social challenges of transferring mid-degree. Transfer students were falling through the cracks with no clear institutional owner of the problem — making the case for research itself part of the work.' },
+      { label: 'Approach', content: 'Started with in-depth interviews with four participants — transfer students a year into university (mentors) and newly arrived transfer students (mentees) — to surface challenges and define user needs. Those findings informed a concept wireframe, which I then refined through a three-phase participatory design workshop with three additional participants. The workshop combined concept testing, co-design, and dotmocracy, giving stakeholders direct input into the solution and ensuring the final prototype reflected real needs, not assumptions.' },
+      { label: 'Impact', content: 'The functional prototype was endorsed by university administration for pilot development. Findings were presented to student services leadership and directly informed a revision of the existing transfer support program — shifting institutional thinking from one-time onboarding to ongoing peer support.' }
     ]
   },
   {
@@ -552,14 +557,46 @@ function getActive() { return projects.find(p => p.id === activeId); }
 function renderSidebar() {
   const list = document.getElementById('projectList');
   list.innerHTML = projects.map(p => `
-    <div class="project-item ${p.id === activeId ? 'active' : ''}" data-id="${p.id}">
+    <div class="project-item ${p.id === activeId ? 'active' : ''}" data-id="${p.id}" draggable="true">
+      <span class="project-drag-handle" title="Drag to reorder">⠿</span>
       <span class="project-item-name">${esc(p.title)}</span>
       <span class="project-item-year">${esc(p.year)}</span>
     </div>
   `).join('');
-  list.querySelectorAll('.project-item').forEach(el =>
-    el.addEventListener('click', () => selectProject(el.dataset.id))
-  );
+
+  let dragSrcId = null;
+
+  list.querySelectorAll('.project-item').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.classList.contains('project-drag-handle')) return;
+      selectProject(el.dataset.id);
+    });
+    el.addEventListener('dragstart', e => {
+      dragSrcId = el.dataset.id;
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => {
+      list.querySelectorAll('.project-item').forEach(i => i.classList.remove('dragging', 'drag-over'));
+    });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      list.querySelectorAll('.project-item').forEach(i => i.classList.remove('drag-over'));
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrcId === el.dataset.id) return;
+      const fromIdx = projects.findIndex(p => p.id === dragSrcId);
+      const toIdx   = projects.findIndex(p => p.id === el.dataset.id);
+      const [moved] = projects.splice(fromIdx, 1);
+      projects.splice(toIdx, 0, moved);
+      saveProjects(true);
+      renderSidebar();
+    });
+  });
 }
 
 // ── Form ─────────────────────────────────────────────────────
@@ -601,7 +638,7 @@ function renderSections(sections) {
         </div>
       </div>
       <div class="section-content-wrap">
-        <textarea placeholder="Section content..." data-field="content" data-index="${i}">${esc(s.content)}</textarea>
+        <textarea placeholder="Section content… use [link text](https://url) for inline links" data-field="content" data-index="${i}">${esc(s.content)}</textarea>
       </div>
     </div>
   `).join('');
@@ -632,6 +669,7 @@ function renderSections(sections) {
 
 const SLOT_COLORS = ['#6366f1','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#ec4899','#f97316','#14b8a6','#a855f7'];
 let snapEnabled = false;
+let aspectLock  = false;
 
 function snapVal(v, axis) {
   const unit = axis === 'y' ? 100 / 12 : 100 / 6;
@@ -726,18 +764,43 @@ function startResize(e, idx, dir) {
   const sx = e.clientX, sy = e.clientY;
   const orig = { ...box };
   const MIN = 5;
+  // pixel aspect ratio at drag start (canvas is 1:2 so heightPx = h% * 2 * canvasW)
+  const pixelRatio = orig.width / (2 * orig.height);
+
   const onMove = e => {
     const dx = (e.clientX - sx) / rect.width  * 100;
     const dy = (e.clientY - sy) / rect.height * 100;
-    if (dir.includes('e')) box.width  = Math.min(100 - box.left, snapVal(Math.max(MIN, orig.width  + dx), 'x'));
-    if (dir.includes('s')) box.height = Math.min(100 - box.top,  snapVal(Math.max(MIN, orig.height + dy), 'y'));
-    if (dir.includes('w')) {
-      const w = snapVal(Math.max(MIN, orig.width - dx), 'x');
-      box.left = Math.max(0, snapVal(orig.left + orig.width - w, 'x')); box.width = w;
-    }
-    if (dir.includes('n')) {
-      const h = snapVal(Math.max(MIN, orig.height - dy), 'y');
-      box.top = Math.max(0, snapVal(orig.top + orig.height - h, 'y')); box.height = h;
+
+    if (aspectLock) {
+      const hasH = dir.includes('e') || dir.includes('w');
+      if (hasH) {
+        // width drives — derive height from it
+        if (dir.includes('e')) {
+          box.width = Math.min(100 - box.left, snapVal(Math.max(MIN, orig.width + dx), 'x'));
+        } else {
+          const w = snapVal(Math.max(MIN, orig.width - dx), 'x');
+          box.left = Math.max(0, snapVal(orig.left + orig.width - w, 'x'));
+          box.width = w;
+        }
+        const h = snapVal(box.width / (2 * pixelRatio), 'y');
+        if (dir.includes('n')) box.top = Math.max(0, snapVal(orig.top + orig.height - h, 'y'));
+        box.height = h;
+      } else {
+        // pure vertical handle — height drives, derive width
+        if (dir.includes('s')) {
+          box.height = Math.min(100 - box.top, snapVal(Math.max(MIN, orig.height + dy), 'y'));
+        } else {
+          const h = snapVal(Math.max(MIN, orig.height - dy), 'y');
+          box.top = Math.max(0, snapVal(orig.top + orig.height - h, 'y'));
+          box.height = h;
+        }
+        box.width = snapVal(box.height * 2 * pixelRatio, 'x');
+      }
+    } else {
+      if (dir.includes('e')) box.width  = Math.min(100 - box.left, snapVal(Math.max(MIN, orig.width  + dx), 'x'));
+      if (dir.includes('s')) box.height = Math.min(100 - box.top,  snapVal(Math.max(MIN, orig.height + dy), 'y'));
+      if (dir.includes('w')) { const w = snapVal(Math.max(MIN, orig.width - dx), 'x'); box.left = Math.max(0, snapVal(orig.left + orig.width - w, 'x')); box.width = w; }
+      if (dir.includes('n')) { const h = snapVal(Math.max(MIN, orig.height - dy), 'y'); box.top  = Math.max(0, snapVal(orig.top + orig.height - h, 'y')); box.height = h; }
     }
     updateBoxEl(idx);
   };
@@ -919,6 +982,9 @@ document.getElementById('btnClearLayout').addEventListener('click', () => {
 
 document.getElementById('snapToggle').addEventListener('change', e => {
   snapEnabled = e.target.checked;
+});
+document.getElementById('lockAspect').addEventListener('change', e => {
+  aspectLock = e.target.checked;
 });
 
 document.getElementById('btnExport').addEventListener('click', () => {

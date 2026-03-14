@@ -197,7 +197,7 @@
     }
     .modal-close:hover { color: var(--color-text-primary); }
     .modal-inner {
-      padding: var(--space-lg) var(--space-xl) var(--space-xl);
+      padding: var(--space-xl);
     }
     .modal-header { margin-bottom: var(--space-lg); text-align: center; }
     .modal-title {
@@ -240,6 +240,14 @@
       display: flex; flex-direction: column; gap: 6px;
     }
     .modal-section-body li { padding-left: 4px; }
+    .modal-section-body a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+      text-underline-offset: 3px;
+      transition: text-decoration-color var(--transition);
+    }
+    .modal-section-body a:hover { text-decoration-color: var(--color-accent); }
     @media (max-width: 768px) {
       .modal-body { grid-template-columns: 1fr; }
     }
@@ -581,6 +589,9 @@
 
   function renderContent(text) {
     if (!text) return '';
+    function parseInline(str) {
+      return str.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    }
     const lines = text.split('\n');
     let html = '';
     let inList = false;
@@ -593,15 +604,15 @@
       if (/^\d+\.\s+/.test(trimmed)) {
         if (inList === 'ul') { html += '</ul>'; inList = false; }
         if (!inList) { html += '<ol>'; inList = 'ol'; }
-        html += `<li>${trimmed.replace(/^\d+\.\s+/, '')}</li>`;
+        html += `<li>${parseInline(trimmed.replace(/^\d+\.\s+/, ''))}</li>`;
       } else if (/^-\s+/.test(trimmed)) {
         if (inList === 'ol') { html += '</ol>'; inList = false; }
         if (!inList) { html += '<ul>'; inList = 'ul'; }
-        html += `<li>${trimmed.replace(/^-\s+/, '')}</li>`;
+        html += `<li>${parseInline(trimmed.replace(/^-\s+/, ''))}</li>`;
       } else {
         if (inList === 'ol') { html += '</ol>'; inList = false; }
         if (inList === 'ul') { html += '</ul>'; inList = false; }
-        html += trimmed;
+        html += parseInline(trimmed);
       }
     }
     if (inList === 'ol') html += '</ol>';

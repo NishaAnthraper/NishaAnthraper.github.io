@@ -304,6 +304,7 @@
   <div class="main-header">
     <span class="main-header-title" id="formTitle">Select a project</span>
     <div class="header-actions">
+      <button class="btn btn-ghost" id="btnImport">Import JSON</button>
       <button class="btn btn-ghost" id="btnExport">Export JSON</button>
       <button class="btn btn-danger" id="btnDelete" style="display:none">Delete</button>
       <button class="btn btn-primary" id="btnSave" style="display:none">Save</button>
@@ -838,6 +839,19 @@ document.getElementById('snapToggle').addEventListener('change', e => {
 document.getElementById('btnExport').addEventListener('click', () => {
   navigator.clipboard.writeText(JSON.stringify(projects, null, 2))
     .then(() => showToast('JSON copied to clipboard'));
+});
+
+document.getElementById('btnImport').addEventListener('click', () => {
+  const json = prompt('Paste exported JSON:');
+  if (!json) return;
+  try {
+    const data = JSON.parse(json);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    showToast('Imported — reloading...');
+    setTimeout(() => location.reload(), 1000);
+  } catch(e) {
+    showToast('Invalid JSON — import failed');
+  }
 });
 
 // ── Toast ────────────────────────────────────────────────────

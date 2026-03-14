@@ -3,14 +3,99 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    #gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0f0f0f;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0;
+      transition: opacity 600ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #gate.fade-out { opacity: 0; pointer-events: none; }
+    .gate-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: #525252; margin-bottom: 40px;
+    }
+    .gate-title {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: clamp(48px, 10vw, 96px);
+      font-weight: 300; letter-spacing: -0.02em; line-height: 0.9;
+      color: #fafafa; margin-bottom: 56px; text-align: center;
+    }
+    .gate-title span { color: #9E9E14; }
+    .gate-form {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      width: 100%; max-width: 280px;
+    }
+    .gate-input {
+      width: 100%;
+      background: #1a1a1a; border: 1px solid #262626;
+      border-radius: 6px; padding: 12px 16px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+      color: #fafafa; text-align: center; letter-spacing: 0.2em;
+      outline: none;
+      transition: border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .gate-input::placeholder { color: #404040; letter-spacing: 0.1em; }
+    .gate-input:focus { border-color: #9E9E14; }
+    .gate-input.error { border-color: #ef4444; animation: shake 300ms ease; }
+    .gate-hint {
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+      color: #ef4444; letter-spacing: 0.05em;
+      height: 14px; transition: opacity 200ms;
+    }
+    .gate-hint:empty { opacity: 0; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .gate-footer {
+      position: fixed; bottom: 32px;
+      font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+      color: #262626; letter-spacing: 0.08em;
+    }
+  </style>
+  <div id="gate">
+    <p class="gate-eyebrow">portfolio cms · private</p>
+    <h1 class="gate-title">nisha<span>.</span></h1>
+    <div class="gate-form">
+      <input id="gateInput" class="gate-input" type="password" placeholder="enter password" autocomplete="current-password" autofocus />
+      <p class="gate-hint" id="gateHint"></p>
+    </div>
+    <p class="gate-footer">nisha anthraper · 2025</p>
+  </div>
   <script>
     (function() {
       const key = 'admin_auth';
-      if (sessionStorage.getItem(key) !== 'true') {
-        const pw = prompt('Password:');
-        if (pw !== '1822') { document.write('<h2 style="font-family:sans-serif;padding:2rem">Access denied.</h2>'); throw new Error('auth'); }
+      const gate = document.getElementById('gate');
+      const input = document.getElementById('gateInput');
+      const hint = document.getElementById('gateHint');
+
+      function unlock() {
         sessionStorage.setItem(key, 'true');
+        gate.classList.add('fade-out');
+        setTimeout(() => gate.remove(), 650);
       }
+
+      if (sessionStorage.getItem(key) === 'true') {
+        gate.remove();
+        return;
+      }
+
+      input.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if (input.value === '1822') {
+          unlock();
+        } else {
+          hint.textContent = 'incorrect password';
+          input.classList.add('error');
+          input.value = '';
+          setTimeout(() => { input.classList.remove('error'); hint.textContent = ''; }, 1200);
+        }
+      });
     })();
   </script>
   <title>Projects Admin</title>

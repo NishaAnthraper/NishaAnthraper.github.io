@@ -217,7 +217,7 @@
       display: flex; gap: var(--space-xl); align-items: flex-start;
     }
     .modal-images {
-      position: relative; flex: 1; aspect-ratio: 1/2;
+      position: relative; flex: 1;
       overflow: hidden; margin-bottom: var(--space-lg);
     }
     .modal-img { position: absolute; overflow: hidden; }
@@ -365,7 +365,7 @@
       .modal-inner { padding: var(--space-lg) var(--space-md) var(--space-xl); }
       .modal-body { grid-template-columns: 1fr; gap: var(--space-md); }
       .modal-title { font-size: var(--text-xl); }
-      .modal-images { aspect-ratio: unset; height: 55vh; margin-bottom: var(--space-sm); }
+      .modal-images { height: 55vh; padding-bottom: 0; margin-bottom: var(--space-sm); }
     }
     @media (max-width: 480px) {
       .mobile-nav a { font-size: var(--text-xs); }
@@ -694,6 +694,8 @@
     const imgs   = project.images || [];
     const modalImages = document.getElementById('modalImages');
     modalImages.style.cssText = '';
+    const maxBottom = layout.reduce((max, box, i) => imgs[i] ? Math.max(max, box.top + box.height) : max, 0);
+    modalImages.style.paddingBottom = (maxBottom * 2) + '%';
     modalImages.innerHTML = layout.map((box, i) => {
       if (!imgs[i]) return '';
       return `<div class="modal-img" style="left:${box.left}%;top:${box.top}%;width:${box.width}%;height:${box.height}%;"><img src="${imgs[i]}" alt="" /></div>`;

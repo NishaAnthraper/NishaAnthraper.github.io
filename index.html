@@ -665,7 +665,7 @@
   const modalText  = document.getElementById('modalText');
 
   const MODAL_TOP    = 120;
-  const MODAL_BOTTOM = 120;
+  const MODAL_BOTTOM = 48;
   let modalY    = 0;
   let maxScroll = 0;
 
@@ -694,8 +694,6 @@
     const imgs   = project.images || [];
     const modalImages = document.getElementById('modalImages');
     modalImages.style.cssText = '';
-    const hasImages = imgs.some((img, i) => img && layout[i]);
-    modalImages.style.display = hasImages ? '' : 'none';
     modalImages.innerHTML = layout.map((box, i) => {
       if (!imgs[i]) return '';
       return `<div class="modal-img" style="left:${box.left}%;top:${box.top}%;width:${box.width}%;height:${box.height}%;"><img src="${imgs[i]}" alt="" /></div>`;

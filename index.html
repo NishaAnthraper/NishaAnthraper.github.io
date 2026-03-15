@@ -665,7 +665,7 @@
   const modalText  = document.getElementById('modalText');
 
   const MODAL_TOP    = 120;
-  const MODAL_BOTTOM = 48;
+  const MODAL_BOTTOM = 120;
   let modalY    = 0;
   let maxScroll = 0;
 
@@ -712,9 +712,6 @@
     modal.classList.add('open');
     overlay.classList.add('open');
     document.documentElement.classList.add('modal-open');
-    document.body.style.top = `-${window.scrollY}px`;
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -723,8 +720,7 @@
     });
 
     setTimeout(() => {
-      const top = window.innerWidth <= 768 ? 64 : MODAL_TOP;
-      maxScroll = Math.max(0, modal.offsetHeight - window.innerHeight + top + MODAL_BOTTOM);
+      maxScroll = Math.max(0, modal.offsetHeight - window.innerHeight + MODAL_TOP + MODAL_BOTTOM);
       window.addEventListener('wheel', handleWheel, { passive: false });
       window.addEventListener('touchstart', handleTouchStart, { passive: true });
       window.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -740,11 +736,6 @@
     modal.classList.remove('open');
     overlay.classList.remove('open');
     document.documentElement.classList.remove('modal-open');
-    const scrollY = parseInt(document.body.style.top || '0') * -1;
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, scrollY);
     setTimeout(() => { modal.style.transform = ''; modalY = 0; }, 420);
   }
 

@@ -359,13 +359,13 @@
       .work-desc { font-size: var(--text-sm); margin-bottom: var(--space-md); }
       .writing-item { grid-template-columns: 44px 1fr; gap: 0 var(--space-sm); }
       .modal {
-        top: 64px; left: 0; right: 0;
+        top: 120px; left: 0; right: 0;
         border-radius: var(--radius-lg);
       }
       .modal-inner { padding: var(--space-lg) var(--space-md) var(--space-xl); }
-      .modal-body { grid-template-columns: 1fr; gap: var(--space-md); }
+      .modal-body { flex-direction: column; gap: var(--space-md); }
       .modal-title { font-size: var(--text-xl); }
-      .modal-images { height: 55vh; padding-bottom: 0; margin-bottom: var(--space-sm); }
+      .modal-images { flex: none; width: 100%; overflow: hidden; margin-bottom: var(--space-sm); }
     }
     @media (max-width: 480px) {
       .mobile-nav a { font-size: var(--text-xs); }
@@ -694,12 +694,21 @@
     const imgs   = project.images || [];
     const modalImages = document.getElementById('modalImages');
     modalImages.style.cssText = '';
-    const maxBottom = layout.reduce((max, box, i) => imgs[i] ? Math.max(max, box.top + box.height) : max, 0);
-    modalImages.style.paddingBottom = (maxBottom * 2) + '%';
+    const cw = modalImages.offsetWidth;
+    const ref = cw * 2;
     modalImages.innerHTML = layout.map((box, i) => {
       if (!imgs[i]) return '';
-      return `<div class="modal-img" style="left:${box.left}%;top:${box.top}%;width:${box.width}%;height:${box.height}%;"><img src="${imgs[i]}" alt="" /></div>`;
+      const t = (box.top / 100 * ref).toFixed(2);
+      const l = (box.left / 100 * cw).toFixed(2);
+      const w = (box.width / 100 * cw).toFixed(2);
+      const h = (box.height / 100 * ref).toFixed(2);
+      return `<div class="modal-img" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;"><img src="${imgs[i]}" alt="" /></div>`;
     }).join('');
+    const maxBottomPx = layout.reduce((max, box, i) => {
+      if (!imgs[i]) return max;
+      return Math.max(max, (box.top + box.height) / 100 * ref);
+    }, 0);
+    modalImages.style.height = maxBottomPx + 'px';
     modalText.innerHTML    = project.sections.map(s => `
       <div class="modal-section">
         <div class="modal-section-label">${s.label}</div>

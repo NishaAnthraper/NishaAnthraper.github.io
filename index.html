@@ -510,9 +510,13 @@
   </footer>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // ── CMS data ─────────────────────────────────────────────────
   const STORAGE_KEY = 'nisha_projects';
+  const SUPABASE_URL = 'https://gqcourivhsgcdrpzthlp.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxY291cml2aHNnY2RycHp0aGxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjMwNjksImV4cCI6MjA4OTMzOTA2OX0.gtR_xK62Lg_x5d6Ix_2f4LpoRNV7HxMkKU3BKfqZXVo';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const SEED = [
     {
@@ -619,14 +623,6 @@
     return html;
   }
 
-  function getProjects() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try { return JSON.parse(stored); } catch(e) {}
-    }
-    return SEED;
-  }
-
   function renderWorkList(projects) {
     const list = document.getElementById('workList');
     list.innerHTML = projects.map(p => `
@@ -653,8 +649,11 @@
     });
   }
 
-  const allProjects = getProjects();
-  renderWorkList(allProjects);
+  (async () => {
+    const { data } = await sb.from('portfolio_data').select('value').eq('key', 'projects').single();
+    const allProjects = (data && data.value) ? data.value : SEED;
+    renderWorkList(allProjects);
+  })();
 
   // ── Project modal ───────────────────────────────────────────
   const modal      = document.getElementById('projectModal');

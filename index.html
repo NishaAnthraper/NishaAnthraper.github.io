@@ -436,40 +436,7 @@
 <section id="writing" class="section">
   <div class="wrap">
     <div class="section-label">Speaking &amp; Writing</div>
-    <div class="writing-list">
-      <a class="writing-item" href="#" target="_blank" rel="noopener">
-        <span class="writing-year">2024</span>
-        <div class="writing-body">
-          <span class="writing-type">Article</span>
-          <div class="writing-title">Unlocking Insights: Data Exploration for UX Researchers</div>
-          <span class="writing-pub">Medium</span>
-        </div>
-      </a>
-      <a class="writing-item" href="#" target="_blank" rel="noopener">
-        <span class="writing-year">2023</span>
-        <div class="writing-body">
-          <span class="writing-type">Talk</span>
-          <div class="writing-title">Designing for Ambiguity: UX in Regulated Environments</div>
-          <span class="writing-pub">UX Insider Conference</span>
-        </div>
-      </a>
-      <a class="writing-item" href="#" target="_blank" rel="noopener">
-        <span class="writing-year">2023</span>
-        <div class="writing-body">
-          <span class="writing-type">Article</span>
-          <div class="writing-title">When the Brief Is Wrong: How to Reframe Before You Redesign</div>
-          <span class="writing-pub">Medium</span>
-        </div>
-      </a>
-      <a class="writing-item" href="#" target="_blank" rel="noopener">
-        <span class="writing-year">2022</span>
-        <div class="writing-body">
-          <span class="writing-type">Talk</span>
-          <div class="writing-title">Research as a Leadership Practice</div>
-          <span class="writing-pub">Women in UX Summit</span>
-        </div>
-      </a>
-    </div>
+    <div class="writing-list" id="writingList"></div>
   </div>
 </section>
 
@@ -649,10 +616,36 @@
     });
   }
 
+  const WRITING_SEED = [
+    { id: 'writing-1', title: 'Unlocking Insights: Data Exploration for UX Researchers', year: '2024', type: 'Article', destination: 'Medium', link: '', description: '' },
+    { id: 'writing-2', title: 'Designing for Ambiguity: UX in Regulated Environments', year: '2023', type: 'Talk', destination: 'UX Insider Conference', link: '', description: '' },
+    { id: 'writing-3', title: 'When the Brief Is Wrong: How to Reframe Before You Redesign', year: '2023', type: 'Article', destination: 'Medium', link: '', description: '' },
+    { id: 'writing-4', title: 'Research as a Leadership Practice', year: '2022', type: 'Talk', destination: 'Women in UX Summit', link: '', description: '' }
+  ];
+
+  function renderWritingList(items) {
+    const list = document.getElementById('writingList');
+    list.innerHTML = items.map(w => `
+      <a class="writing-item" href="${w.link || '#'}" ${w.link ? 'target="_blank" rel="noopener"' : ''}>
+        <span class="writing-year">${w.year}</span>
+        <div class="writing-body">
+          <span class="writing-type">${w.type}</span>
+          <div class="writing-title">${w.title}</div>
+          <span class="writing-pub">${w.destination}</span>
+        </div>
+      </a>
+    `).join('');
+  }
+
   (async () => {
-    const { data } = await sb.from('portfolio_data').select('value').eq('key', 'projects').single();
-    const allProjects = (data && data.value) ? data.value : SEED;
+    const [projectsRes, writingRes] = await Promise.all([
+      sb.from('portfolio_data').select('value').eq('key', 'projects').single(),
+      sb.from('portfolio_data').select('value').eq('key', 'writing').single()
+    ]);
+    const allProjects = (projectsRes.data && projectsRes.data.value) ? projectsRes.data.value : SEED;
+    const allWriting  = (writingRes.data  && writingRes.data.value)  ? writingRes.data.value  : WRITING_SEED;
     renderWorkList(allProjects);
+    renderWritingList(allWriting);
   })();
 
   // ── Project modal ───────────────────────────────────────────

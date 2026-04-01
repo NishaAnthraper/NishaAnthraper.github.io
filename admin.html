@@ -364,6 +364,29 @@
     .rh.sw { bottom:-5px; left:-5px; cursor:sw-resize; }
     .rh.w  { top:calc(50% - 5px); left:-5px; cursor:w-resize; }
 
+    /* ── Tabs ── */
+    .sidebar-tabs {
+      display: flex; gap: 4px;
+    }
+    .sidebar-tab {
+      padding: 4px 10px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: var(--tracking-wider); text-transform: uppercase;
+      background: none; border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: var(--color-text-tertiary); cursor: pointer;
+      transition: color var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .sidebar-tab:hover { color: var(--color-text-secondary); }
+    .sidebar-tab.active { color: var(--color-accent); border-color: var(--color-accent); background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+
+    /* ── Writing form ── */
+    .writing-form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: var(--space-md); margin-bottom: var(--space-xl);
+    }
+    .writing-form-grid .full { grid-column: 1 / -1; }
+
     /* ── Empty state ── */
     .empty-state {
       display: flex; flex-direction: column;
@@ -388,10 +411,14 @@
 
 <aside class="sidebar">
   <div class="sidebar-header">
-    <span class="sidebar-title">Projects</span>
-    <button class="btn-icon" id="btnNew" title="New project">+</button>
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" id="tabWork">Work</button>
+      <button class="sidebar-tab" id="tabWriting">Writing</button>
+    </div>
+    <button class="btn-icon" id="btnNew" title="New item">+</button>
   </div>
   <div class="project-list" id="projectList"></div>
+  <div class="project-list" id="writingList" style="display:none"></div>
 </aside>
 
 <div class="main">
@@ -456,6 +483,35 @@
         <button class="btn btn-ghost" id="btnAddSection">+ Add section</button>
       </div>
       <div class="sections-list" id="sectionsList"></div>
+    </div>
+    <!-- Writing form -->
+    <div id="writingFormContent" style="display:none">
+      <div class="writing-form-grid">
+        <div class="form-field full">
+          <label>Title</label>
+          <input type="text" id="wTitle" placeholder="Article or talk title" />
+        </div>
+        <div class="form-field">
+          <label>Year</label>
+          <input type="text" id="wYear" placeholder="2024" />
+        </div>
+        <div class="form-field">
+          <label>Type</label>
+          <input type="text" id="wType" placeholder="Article, Talk, Panel…" />
+        </div>
+        <div class="form-field">
+          <label>Destination label</label>
+          <input type="text" id="wDestination" placeholder="Medium, Conference name…" />
+        </div>
+        <div class="form-field">
+          <label>Link URL</label>
+          <input type="url" id="wLink" placeholder="https://…" />
+        </div>
+        <div class="form-field full">
+          <label>Description (optional)</label>
+          <textarea id="wDesc" rows="2" placeholder="One sentence description…"></textarea>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -618,6 +674,7 @@ function selectProject(id) {
 
 function renderForm() {
   const p = getActive();
+  document.getElementById('writingFormContent').style.display = 'none';
   document.getElementById('emptyState').style.display  = p ? 'none'         : 'flex';
   document.getElementById('formContent').style.display = p ? 'block'        : 'none';
   document.getElementById('btnSave').style.display     = p ? 'inline-flex'  : 'none';
@@ -941,6 +998,7 @@ function esc(str) {
 
 // ── Button handlers ──────────────────────────────────────────
 document.getElementById('btnNew').addEventListener('click', () => {
+  if (activeTab !== 'work') return;
   const id = 'project-' + Date.now();
   projects.push({ id, title: 'New Project', year: '', type: '', meta: '', description: '',
     imageLayout: [], images: [],
@@ -949,6 +1007,7 @@ document.getElementById('btnNew').addEventListener('click', () => {
 });
 
 document.getElementById('btnSave').addEventListener('click', () => {
+  if (activeTab !== 'work') return;
   const p = getActive(); if (!p) return;
   p.title       = document.getElementById('fTitle').value;
   p.year        = document.getElementById('fYear').value;
@@ -961,6 +1020,7 @@ document.getElementById('btnSave').addEventListener('click', () => {
 });
 
 document.getElementById('btnDelete').addEventListener('click', () => {
+  if (activeTab !== 'work') return;
   if (!confirm('Delete this project?')) return;
   projects = projects.filter(p => p.id !== activeId);
   activeId = null;
@@ -1025,9 +1085,134 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
+// ── Writing ──────────────────────────────────────────────────
+const WRITING_SEED = [
+  { id: 'writing-1', title: 'Unlocking Insights: Data Exploration for UX Researchers', year: '2024', type: 'Article', destination: 'Medium', link: '', description: '' },
+  { id: 'writing-2', title: 'Designing for Ambiguity: UX in Regulated Environments', year: '2023', type: 'Talk', destination: 'UX Insider Conference', link: '', description: '' },
+  { id: 'writing-3', title: 'When the Brief Is Wrong: How to Reframe Before You Redesign', year: '2023', type: 'Article', destination: 'Medium', link: '', description: '' },
+  { id: 'writing-4', title: 'Research as a Leadership Practice', year: '2022', type: 'Talk', destination: 'Women in UX Summit', link: '', description: '' }
+];
+
+let writingItems = [];
+let activeWritingId = null;
+let activeTab = 'work'; // 'work' | 'writing'
+
+async function loadWriting() {
+  const { data } = await sb.from('portfolio_data').select('value').eq('key', 'writing').single();
+  writingItems = (data && data.value) ? data.value : JSON.parse(JSON.stringify(WRITING_SEED));
+}
+
+async function saveWriting(silent = false) {
+  try { localStorage.setItem('nisha_writing', JSON.stringify(writingItems)); } catch(e) {}
+  const { error } = await sb.from('portfolio_data').upsert({ key: 'writing', value: writingItems });
+  if (error) showToast('Save failed — ' + error.message);
+  else if (!silent) showToast('Saved — portfolio updated everywhere');
+}
+
+function getActiveWriting() { return writingItems.find(w => w.id === activeWritingId); }
+
+function renderWritingSidebar() {
+  const list = document.getElementById('writingList');
+  list.innerHTML = writingItems.map(w => `
+    <div class="project-item ${w.id === activeWritingId ? 'active' : ''}" data-wid="${w.id}">
+      <span class="project-item-name">${esc(w.title)}</span>
+      <span class="project-item-year">${esc(w.year)}</span>
+    </div>
+  `).join('');
+  list.querySelectorAll('.project-item').forEach(el => {
+    el.addEventListener('click', () => selectWritingItem(el.dataset.wid));
+  });
+}
+
+function selectWritingItem(id) {
+  activeWritingId = id;
+  renderWritingSidebar();
+  renderWritingForm();
+}
+
+function renderWritingForm() {
+  const w = getActiveWriting();
+  document.getElementById('emptyState').style.display        = w ? 'none'        : 'flex';
+  document.getElementById('writingFormContent').style.display = w ? 'block'       : 'none';
+  document.getElementById('formContent').style.display        = 'none';
+  document.getElementById('btnSave').style.display            = w ? 'inline-flex' : 'none';
+  document.getElementById('btnDelete').style.display          = w ? 'inline-flex' : 'none';
+  if (!w) { document.getElementById('formTitle').textContent = 'Select a writing item'; return; }
+  document.getElementById('formTitle').textContent = w.title || 'Untitled';
+  document.getElementById('wTitle').value       = w.title       || '';
+  document.getElementById('wYear').value        = w.year        || '';
+  document.getElementById('wType').value        = w.type        || '';
+  document.getElementById('wDestination').value = w.destination || '';
+  document.getElementById('wLink').value        = w.link        || '';
+  document.getElementById('wDesc').value        = w.description || '';
+}
+
+// ── Tab switching ─────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabWork').classList.toggle('active', tab === 'work');
+  document.getElementById('tabWriting').classList.toggle('active', tab === 'writing');
+  document.getElementById('projectList').style.display = tab === 'work' ? '' : 'none';
+  document.getElementById('writingList').style.display = tab === 'writing' ? '' : 'none';
+
+  if (tab === 'work') {
+    activeWritingId = null;
+    renderForm();
+  } else {
+    activeId = null;
+    document.getElementById('emptyState').style.display        = 'flex';
+    document.getElementById('formContent').style.display        = 'none';
+    document.getElementById('writingFormContent').style.display = 'none';
+    document.getElementById('btnSave').style.display            = 'none';
+    document.getElementById('btnDelete').style.display          = 'none';
+    document.getElementById('formTitle').textContent            = 'Select a writing item';
+    if (writingItems.length) selectWritingItem(writingItems[0].id);
+  }
+}
+
+document.getElementById('tabWork').addEventListener('click', () => switchTab('work'));
+document.getElementById('tabWriting').addEventListener('click', () => switchTab('writing'));
+
+// ── Writing new item ──────────────────────────────────────────
+document.getElementById('btnNew').addEventListener('click', () => {
+  if (activeTab !== 'writing') return;
+  const id = 'writing-' + Date.now();
+  writingItems.push({ id, title: 'New Item', year: '', type: '', destination: '', link: '', description: '' });
+  saveWriting(true);
+  renderWritingSidebar();
+  selectWritingItem(id);
+});
+
+// ── Writing save / delete ─────────────────────────────────────
+document.getElementById('btnSave').addEventListener('click', () => {
+  if (activeTab !== 'writing') return;
+  const w = getActiveWriting(); if (!w) return;
+  w.title       = document.getElementById('wTitle').value;
+  w.year        = document.getElementById('wYear').value;
+  w.type        = document.getElementById('wType').value;
+  w.destination = document.getElementById('wDestination').value;
+  w.link        = document.getElementById('wLink').value;
+  w.description = document.getElementById('wDesc').value;
+  saveWriting();
+  renderWritingSidebar();
+  document.getElementById('formTitle').textContent = w.title || 'Untitled';
+});
+
+document.getElementById('btnDelete').addEventListener('click', () => {
+  if (activeTab !== 'writing') return;
+  if (!confirm('Delete this writing item?')) return;
+  writingItems = writingItems.filter(w => w.id !== activeWritingId);
+  activeWritingId = null;
+  saveWriting(true);
+  renderWritingSidebar();
+  renderWritingForm();
+  showToast('Deleted');
+});
+
 // ── Init ─────────────────────────────────────────────────────
-loadProjects().then(() => {
+Promise.all([loadProjects(), loadWriting()]).then(() => {
   renderSidebar();
+  renderWritingSidebar();
   if (projects.length) selectProject(projects[0].id);
 });
 </script>

@@ -152,7 +152,7 @@
       margin-bottom: var(--space-lg);
     }
     .work-img {
-      width: 100%; aspect-ratio: 16/7;
+      width: 100%; aspect-ratio: 16/9;
       overflow: hidden; background: var(--color-bg-3);
       position: relative; display: flex; gap: 2px;
     }
@@ -602,7 +602,9 @@
         <p class="work-desc">${p.description}</p>
         <div class="work-img">${
           p.coverImages && p.coverImages.filter(Boolean).length
-            ? p.coverImages.filter(Boolean).map(src => `<img src="${src}" alt="${p.title}" />`).join('')
+            ? p.coverImages.filter(Boolean).map(src => /\.(mp4|webm|ogg)(\?|$)/i.test(src)
+                ? `<video src="${src}" autoplay loop muted playsinline style="flex:1;min-width:0;height:100%;object-fit:cover;display:block;"></video>`
+                : `<img src="${src}" alt="${p.title}" />`).join('')
             : `<div class="work-img-placeholder"></div>`
         }</div>
       </a>

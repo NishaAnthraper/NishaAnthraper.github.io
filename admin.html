@@ -279,7 +279,7 @@
     .cover-toggle button.active { background: var(--color-bg-3); color: var(--color-text-primary); }
     .cover-slots {
       display: flex; gap: 12px; margin-bottom: var(--space-xl);
-      width: 60%; aspect-ratio: 16/7; margin-left: auto; margin-right: auto;
+      width: 60%; aspect-ratio: 16/9; margin-left: auto; margin-right: auto;
     }
     .cover-slot {
       flex: 1; background: var(--color-bg-3);
@@ -291,7 +291,7 @@
       transition: border-color var(--transition);
     }
     .cover-slot:hover { border-color: var(--color-text-secondary); }
-    .cover-slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cover-slot img, .cover-slot video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cover-slot-remove {
       position: absolute; top: 6px; right: 6px; z-index: 2;
       width: 20px; height: 20px; border: none; border-radius: 50%;
@@ -948,9 +948,12 @@ function renderCoverSlots() {
     const slot = document.createElement('div');
     slot.className = 'cover-slot';
     if (p.coverImages[i]) {
-      const img = document.createElement('img');
-      img.src = p.coverImages[i];
-      slot.appendChild(img);
+      const src = p.coverImages[i];
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const media = document.createElement(isVideo ? 'video' : 'img');
+      media.src = src;
+      if (isVideo) { media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true; }
+      slot.appendChild(media);
       const rem = document.createElement('button');
       rem.className = 'cover-slot-remove'; rem.innerHTML = '×';
       rem.addEventListener('click', e => { e.stopPropagation(); p.coverImages[i] = null; saveProjects(true); renderCoverSlots(); });
@@ -966,19 +969,31 @@ function renderCoverSlots() {
 function uploadCoverFor(idx) {
   const fp = getFileInput();
   fp.value = '';
+  fp.accept = 'image/*,video/mp4,video/webm,video/ogg';
   fp.onchange = () => {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      compressImage(e.target.result, 1400, 800, 0.85, compressed => {
+    if (file.type.startsWith('video/')) {
+      reader.onload = e => {
         const p = getActive(); if (!p) return;
         if (!p.coverImages) p.coverImages = [];
-        p.coverImages[idx] = compressed;
+        p.coverImages[idx] = e.target.result;
         saveProjects(true);
         renderCoverSlots();
-      });
-    };
-    reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = e => {
+        compressImage(e.target.result, 1400, 800, 0.85, compressed => {
+          const p = getActive(); if (!p) return;
+          if (!p.coverImages) p.coverImages = [];
+          p.coverImages[idx] = compressed;
+          saveProjects(true);
+          renderCoverSlots();
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
   fp.click();
 }

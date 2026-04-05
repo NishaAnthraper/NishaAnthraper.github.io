@@ -634,13 +634,17 @@
         <p class="work-desc">${p.description}</p>
         <div class="work-img">${
           p.coverImages && p.coverImages.filter(Boolean).length
-            ? p.coverImages.filter(Boolean).map(src => /\.(mp4|webm|ogg)(\?|$)/i.test(src)
-                ? `<video src="${src}" autoplay loop muted playsinline style="flex:1;min-width:0;height:100%;object-fit:cover;display:block;"></video>`
+            ? p.coverImages.filter(Boolean).map(src => /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src)
+                ? `<video data-blobsrc="${src}" autoplay loop muted playsinline style="flex:1;min-width:0;height:100%;object-fit:cover;display:block;"></video>`
                 : `<img src="${src}" alt="${p.title}" />`).join('')
             : `<div class="work-img-placeholder"></div>`
         }</div>
       </a>
     `).join('');
+    list.querySelectorAll('video[data-blobsrc]').forEach(v => {
+      v.src = URL.createObjectURL(dataUrlToBlob(v.dataset.blobsrc));
+      v.removeAttribute('data-blobsrc');
+    });
     list.querySelectorAll('.work-item').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
@@ -671,18 +675,36 @@
     `).join('');
   }
 
+  function dataUrlToBlob(dataUrl) {
+    const [header, data] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)[1];
+    const binary = atob(data);
+    const arr = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
   function renderAboutStrip(images) {
     const strip = document.getElementById('aboutStrip');
     const filled = (images || []).map((src, i) => src ? { src, i } : null).filter(Boolean);
     if (!filled.length) { strip.style.display = 'none'; return; }
     strip.style.display = '';
-    strip.innerHTML = filled.map(({ src, i }) => {
+    strip.innerHTML = '';
+    filled.forEach(({ src, i }) => {
       const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
-      const media = isVideo
-        ? `<video src="${src}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
-        : `<img src="${src}" alt="" />`;
-      return `<div class="about-strip-img about-strip-img--${i + 1}">${media}</div>`;
-    }).join('');
+      const wrap = document.createElement('div');
+      wrap.className = `about-strip-img about-strip-img--${i + 1}`;
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
+        video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+        video.src = URL.createObjectURL(dataUrlToBlob(src));
+        wrap.appendChild(video);
+      } else {
+        wrap.innerHTML = `<img src="${src}" alt="" />`;
+      }
+      strip.appendChild(wrap);
+    });
   }
 
   (async () => {
@@ -737,21 +759,34 @@
     const imgs   = project.images || [];
     const modalImages = document.getElementById('modalImages');
     modalImages.style.cssText = '';
+    modalImages.innerHTML = '';
     const cw = modalImages.offsetWidth;
     const ref = cw * 2;
-    modalImages.innerHTML = layout.map((box, i) => {
-      if (!imgs[i]) return '';
+    layout.forEach((box, i) => {
+      if (!imgs[i]) return;
       const t = (box.top / 100 * ref).toFixed(2);
       const l = (box.left / 100 * cw).toFixed(2);
       const w = (box.width / 100 * cw).toFixed(2);
       const h = (box.height / 100 * ref).toFixed(2);
       const src = imgs[i];
       const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
-      const media = isVideo
-        ? `<video src="${src}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
-        : `<img src="${src}" alt="" />`;
-      return `<div class="modal-img" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;">${media}</div>`;
-    }).join('');
+      const wrap = document.createElement('div');
+      wrap.className = 'modal-img';
+      wrap.style.cssText = `left:${l}px;top:${t}px;width:${w}px;height:${h}px;`;
+      if (isVideo) {
+        const video = document.createElement('video');
+        video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
+        video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+        const blob = dataUrlToBlob(src);
+        video.src = URL.createObjectURL(blob);
+        wrap.appendChild(video);
+      } else {
+        const img = document.createElement('img');
+        img.src = src; img.alt = '';
+        wrap.appendChild(img);
+      }
+      modalImages.appendChild(wrap);
+    });
     const maxBottomPx = layout.reduce((max, box, i) => {
       if (!imgs[i]) return max;
       return Math.max(max, (box.top + box.height) / 100 * ref);

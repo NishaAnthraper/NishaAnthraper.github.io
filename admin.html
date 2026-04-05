@@ -651,7 +651,13 @@ async function loadProjects() {
 }
 
 async function saveProjects(silent = false) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); } catch(e) {}
+  const payload = JSON.stringify(projects);
+  const sizeMB = (new Blob([payload]).size / 1024 / 1024).toFixed(1);
+  if (sizeMB > 8) {
+    showToast(`Save failed — data too large (${sizeMB}MB). Use smaller video files.`);
+    return;
+  }
+  try { localStorage.setItem(STORAGE_KEY, payload); } catch(e) {}
   const { error } = await sb.from('portfolio_data').upsert({ key: 'projects', value: projects });
   if (error) {
     showToast('Save failed — ' + error.message);

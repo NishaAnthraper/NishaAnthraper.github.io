@@ -650,13 +650,20 @@ async function loadProjects() {
   }
 }
 
+async function uploadVideoToStorage(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const path = `videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  showToast('Uploading video…');
+  const { error } = await sb.storage.from('portfolio-media').upload(path, file, {
+    contentType: file.type, cacheControl: '31536000', upsert: false
+  });
+  if (error) throw error;
+  const { data } = sb.storage.from('portfolio-media').getPublicUrl(path);
+  return data.publicUrl;
+}
+
 async function saveProjects(silent = false) {
   const payload = JSON.stringify(projects);
-  const sizeMB = (new Blob([payload]).size / 1024 / 1024).toFixed(1);
-  if (sizeMB > 8) {
-    showToast(`Save failed — data too large (${sizeMB}MB). Use smaller video files.`);
-    return;
-  }
   try { localStorage.setItem(STORAGE_KEY, payload); } catch(e) {}
   const { error } = await sb.from('portfolio_data').upsert({ key: 'projects', value: projects });
   if (error) {
@@ -825,14 +832,13 @@ function uploadImageFor(slotIdx) {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
     if (file.type.startsWith('video/')) {
-      reader.onload = e => {
+      uploadVideoToStorage(file).then(url => {
         const p = getActive(); if (!p) return;
         if (!p.images) p.images = [];
-        p.images[slotIdx] = e.target.result;
+        p.images[slotIdx] = url;
         saveProjects(true);
         renderLayoutBuilder();
-      };
-      reader.readAsDataURL(file);
+      }).catch(e => showToast('Upload failed — ' + e.message));
     } else {
       reader.onload = e => {
         compressImage(e.target.result, 1200, 900, 0.82, compressed => {
@@ -1038,14 +1044,13 @@ function uploadCoverFor(idx) {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
     if (file.type.startsWith('video/')) {
-      reader.onload = e => {
+      uploadVideoToStorage(file).then(url => {
         const p = getActive(); if (!p) return;
         if (!p.coverImages) p.coverImages = [];
-        p.coverImages[idx] = e.target.result;
+        p.coverImages[idx] = url;
         saveProjects(true);
         renderCoverSlots();
-      };
-      reader.readAsDataURL(file);
+      }).catch(e => showToast('Upload failed — ' + e.message));
     } else {
       reader.onload = e => {
         compressImage(e.target.result, 1400, 800, 0.85, compressed => {
@@ -1274,8 +1279,9 @@ function uploadAboutImage(idx) {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
     if (file.type.startsWith('video/')) {
-      reader.onload = e => { aboutImages[idx] = e.target.result; saveAboutImages(); renderAboutSlots(); };
-      reader.readAsDataURL(file);
+      uploadVideoToStorage(file).then(url => {
+        aboutImages[idx] = url; saveAboutImages(); renderAboutSlots();
+      }).catch(e => showToast('Upload failed — ' + e.message));
     } else {
       reader.onload = e => {
         compressImage(e.target.result, 1400, 1400, 0.85, compressed => {

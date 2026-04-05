@@ -642,7 +642,7 @@
       </a>
     `).join('');
     list.querySelectorAll('video[data-blobsrc]').forEach(v => {
-      v.src = URL.createObjectURL(dataUrlToBlob(v.dataset.blobsrc));
+      setVideoSrc(v, v.dataset.blobsrc);
       v.removeAttribute('data-blobsrc');
     });
     list.querySelectorAll('.work-item').forEach(item => {
@@ -684,6 +684,10 @@
     return new Blob([arr], { type: mime });
   }
 
+  function setVideoSrc(video, src) {
+    video.src = src.startsWith('data:') ? URL.createObjectURL(dataUrlToBlob(src)) : src;
+  }
+
   function renderAboutStrip(images) {
     const strip = document.getElementById('aboutStrip');
     const filled = (images || []).map((src, i) => src ? { src, i } : null).filter(Boolean);
@@ -698,7 +702,7 @@
         const video = document.createElement('video');
         video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
         video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-        video.src = URL.createObjectURL(dataUrlToBlob(src));
+        setVideoSrc(video, src);
         wrap.appendChild(video);
       } else {
         wrap.innerHTML = `<img src="${src}" alt="" />`;
@@ -777,8 +781,7 @@
         const video = document.createElement('video');
         video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
         video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-        const blob = dataUrlToBlob(src);
-        video.src = URL.createObjectURL(blob);
+        setVideoSrc(video, src);
         wrap.appendChild(video);
       } else {
         const img = document.createElement('img');

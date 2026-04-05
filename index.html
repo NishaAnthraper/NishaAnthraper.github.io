@@ -372,6 +372,35 @@
       .mobile-nav { gap: var(--space-sm); }
     }
 
+    /* ── About photo strip ───────────────────────────────────── */
+    .about-strip {
+      display: flex; align-items: flex-end; gap: 8px;
+      width: 100%; overflow: hidden;
+      padding: 0 var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+    .about-strip-img {
+      flex: none; overflow: hidden; background: var(--color-bg-3);
+      width: calc(20% - 7px);
+    }
+    .about-strip-img--1 { aspect-ratio: 4/3; }
+    .about-strip-img--2 { aspect-ratio: 3/4; }
+    .about-strip-img--3 { aspect-ratio: 2/3; width: calc(24% - 7px); }
+    .about-strip-img--4 { aspect-ratio: 3/4; }
+    .about-strip-img--5 { aspect-ratio: 4/3; }
+    .about-strip-img img, .about-strip-img video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    @media (max-width: 640px) {
+      .about-strip {
+        overflow-x: auto; scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch; align-items: stretch;
+      }
+      .about-strip-img {
+        width: 72vw !important; aspect-ratio: 3/4 !important; scroll-snap-align: start;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -423,6 +452,9 @@
     </div>
   </div>
 </section>
+
+<!-- ── About photo strip ─────────────────────────────────── -->
+<div class="about-strip" id="aboutStrip"></div>
 
 <!-- ── Work ─────────────────────────────────────────────────── -->
 <section id="work" class="section">
@@ -639,15 +671,32 @@
     `).join('');
   }
 
+  function renderAboutStrip(images) {
+    const strip = document.getElementById('aboutStrip');
+    const filled = (images || []).map((src, i) => src ? { src, i } : null).filter(Boolean);
+    if (!filled.length) { strip.style.display = 'none'; return; }
+    strip.style.display = '';
+    strip.innerHTML = filled.map(({ src, i }) => {
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const media = isVideo
+        ? `<video src="${src}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
+        : `<img src="${src}" alt="" />`;
+      return `<div class="about-strip-img about-strip-img--${i + 1}">${media}</div>`;
+    }).join('');
+  }
+
   (async () => {
-    const [projectsRes, writingRes] = await Promise.all([
+    const [projectsRes, writingRes, aboutRes] = await Promise.all([
       sb.from('portfolio_data').select('value').eq('key', 'projects').single(),
-      sb.from('portfolio_data').select('value').eq('key', 'writing').single()
+      sb.from('portfolio_data').select('value').eq('key', 'writing').single(),
+      sb.from('portfolio_data').select('value').eq('key', 'about_images').single()
     ]);
     const allProjects = (projectsRes.data && projectsRes.data.value) ? projectsRes.data.value : SEED;
     const allWriting  = (writingRes.data  && writingRes.data.value)  ? writingRes.data.value  : WRITING_SEED;
+    const aboutImages = (aboutRes.data    && aboutRes.data.value)    ? aboutRes.data.value    : [];
     renderWorkList(allProjects);
     renderWritingList(allWriting);
+    renderAboutStrip(aboutImages);
   })();
 
   // ── Project modal ───────────────────────────────────────────

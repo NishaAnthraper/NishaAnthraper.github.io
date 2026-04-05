@@ -387,6 +387,41 @@
     }
     .writing-form-grid .full { grid-column: 1 / -1; }
 
+    /* ── About photos panel ── */
+    .about-panel { padding: var(--space-lg) 0; }
+    .about-panel-label {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--color-text-tertiary); letter-spacing: var(--tracking-wider);
+      text-transform: uppercase; margin-bottom: var(--space-md);
+    }
+    .about-slots {
+      display: flex; align-items: flex-end; gap: 4px; width: 100%;
+    }
+    .about-slot {
+      overflow: hidden; position: relative; cursor: pointer;
+      background: var(--color-bg-3); border: 1px dashed var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 4px;
+      font-family: var(--font-mono); font-size: 9px; color: var(--color-text-tertiary);
+      transition: border-color var(--transition); flex: 1;
+    }
+    .about-slot:nth-child(1) { aspect-ratio: 4/3; }
+    .about-slot:nth-child(2) { aspect-ratio: 3/4; }
+    .about-slot:nth-child(3) { aspect-ratio: 2/3; flex: 1.2; }
+    .about-slot:nth-child(4) { aspect-ratio: 3/4; }
+    .about-slot:nth-child(5) { aspect-ratio: 4/3; }
+    .about-slot:hover { border-color: var(--color-text-secondary); }
+    .about-slot img, .about-slot video {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .about-slot-remove {
+      position: absolute; top: 6px; right: 6px; z-index: 2;
+      width: 20px; height: 20px; border: none; border-radius: 50%;
+      background: rgba(0,0,0,0.65); color: #fff; font-size: 13px;
+      cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1;
+    }
+    .about-slot:hover .about-slot-remove { display: flex; }
+
     /* ── Empty state ── */
     .empty-state {
       display: flex; flex-direction: column;
@@ -414,6 +449,7 @@
     <div class="sidebar-tabs">
       <button class="sidebar-tab active" id="tabWork">Work</button>
       <button class="sidebar-tab" id="tabWriting">Writing</button>
+      <button class="sidebar-tab" id="tabAbout">About</button>
     </div>
     <button class="btn-icon" id="btnNew" title="New item">+</button>
   </div>
@@ -511,6 +547,13 @@
           <label>Description (optional)</label>
           <textarea id="wDesc" rows="2" placeholder="One sentence description…"></textarea>
         </div>
+      </div>
+    </div>
+    <!-- About panel -->
+    <div id="aboutPanelContent" style="display:none">
+      <div class="about-panel">
+        <div class="about-panel-label">About photos (5 images — shown below the bio)</div>
+        <div class="about-slots" id="aboutSlots"></div>
       </div>
     </div>
   </div>
@@ -1162,31 +1205,108 @@ function renderWritingForm() {
   document.getElementById('wDesc').value        = w.description || '';
 }
 
+// ── About images ─────────────────────────────────────────────
+let aboutImages = [null, null, null, null, null];
+
+async function loadAboutImages() {
+  const { data } = await sb.from('portfolio_data').select('value').eq('key', 'about_images').single();
+  if (data && data.value) aboutImages = data.value;
+}
+
+async function saveAboutImages() {
+  try { localStorage.setItem('nisha_about_images', JSON.stringify(aboutImages)); } catch(e) {}
+  const { error } = await sb.from('portfolio_data').upsert({ key: 'about_images', value: aboutImages });
+  if (error) showToast('Save failed — ' + error.message);
+  else showToast('Saved — portfolio updated everywhere');
+}
+
+function renderAboutSlots() {
+  const container = document.getElementById('aboutSlots');
+  container.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'about-slot';
+    const src = aboutImages[i];
+    if (src) {
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const media = document.createElement(isVideo ? 'video' : 'img');
+      media.src = src;
+      if (isVideo) { media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true; }
+      slot.appendChild(media);
+      const rem = document.createElement('button');
+      rem.className = 'about-slot-remove'; rem.innerHTML = '×';
+      rem.addEventListener('click', e => { e.stopPropagation(); aboutImages[i] = null; saveAboutImages(); renderAboutSlots(); });
+      slot.appendChild(rem);
+    } else {
+      slot.innerHTML = `<span style="font-size:16px;opacity:.4">+</span><span>${i + 1}</span>`;
+    }
+    slot.addEventListener('click', () => uploadAboutImage(i));
+    container.appendChild(slot);
+  }
+}
+
+function uploadAboutImage(idx) {
+  const fp = getFileInput();
+  fp.value = '';
+  fp.accept = 'image/*,video/mp4,video/webm,video/ogg';
+  fp.onchange = () => {
+    const file = fp.files[0]; if (!file) return;
+    const reader = new FileReader();
+    if (file.type.startsWith('video/')) {
+      reader.onload = e => { aboutImages[idx] = e.target.result; saveAboutImages(); renderAboutSlots(); };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = e => {
+        compressImage(e.target.result, 1400, 1400, 0.85, compressed => {
+          aboutImages[idx] = compressed; saveAboutImages(); renderAboutSlots();
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  fp.click();
+}
+
 // ── Tab switching ─────────────────────────────────────────────
 function switchTab(tab) {
   activeTab = tab;
   document.getElementById('tabWork').classList.toggle('active', tab === 'work');
   document.getElementById('tabWriting').classList.toggle('active', tab === 'writing');
-  document.getElementById('projectList').style.display = tab === 'work' ? '' : 'none';
-  document.getElementById('writingList').style.display = tab === 'writing' ? '' : 'none';
+  document.getElementById('tabAbout').classList.toggle('active', tab === 'about');
+  document.getElementById('projectList').style.display  = tab === 'work'    ? '' : 'none';
+  document.getElementById('writingList').style.display  = tab === 'writing' ? '' : 'none';
+  document.getElementById('btnNew').style.display       = tab === 'about'   ? 'none' : '';
 
   if (tab === 'work') {
     activeWritingId = null;
+    document.getElementById('aboutPanelContent').style.display = 'none';
     renderForm();
-  } else {
+  } else if (tab === 'writing') {
     activeId = null;
     document.getElementById('emptyState').style.display        = 'flex';
     document.getElementById('formContent').style.display        = 'none';
     document.getElementById('writingFormContent').style.display = 'none';
+    document.getElementById('aboutPanelContent').style.display  = 'none';
     document.getElementById('btnSave').style.display            = 'none';
     document.getElementById('btnDelete').style.display          = 'none';
     document.getElementById('formTitle').textContent            = 'Select a writing item';
     if (writingItems.length) selectWritingItem(writingItems[0].id);
+  } else {
+    activeId = null; activeWritingId = null;
+    document.getElementById('emptyState').style.display        = 'none';
+    document.getElementById('formContent').style.display        = 'none';
+    document.getElementById('writingFormContent').style.display = 'none';
+    document.getElementById('aboutPanelContent').style.display  = 'block';
+    document.getElementById('btnSave').style.display            = 'none';
+    document.getElementById('btnDelete').style.display          = 'none';
+    document.getElementById('formTitle').textContent            = 'About photos';
+    renderAboutSlots();
   }
 }
 
 document.getElementById('tabWork').addEventListener('click', () => switchTab('work'));
 document.getElementById('tabWriting').addEventListener('click', () => switchTab('writing'));
+document.getElementById('tabAbout').addEventListener('click', () => switchTab('about'));
 
 // ── Writing new item ──────────────────────────────────────────
 document.getElementById('btnNew').addEventListener('click', () => {
@@ -1225,7 +1345,7 @@ document.getElementById('btnDelete').addEventListener('click', () => {
 });
 
 // ── Init ─────────────────────────────────────────────────────
-Promise.all([loadProjects(), loadWriting()]).then(() => {
+Promise.all([loadProjects(), loadWriting(), loadAboutImages()]).then(() => {
   renderSidebar();
   renderWritingSidebar();
   if (projects.length) selectProject(projects[0].id);

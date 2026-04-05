@@ -788,12 +788,10 @@ function snapVal(v, axis) {
 
 function getFileInput() {
   let fp = document.getElementById('imgFileInput');
-  if (!fp) {
-    fp = document.createElement('input');
-    fp.type = 'file'; fp.accept = 'image/*';
-    fp.id = 'imgFileInput'; fp.style.display = 'none';
-    document.body.appendChild(fp);
-  }
+  if (fp) fp.remove();
+  fp = document.createElement('input');
+  fp.type = 'file'; fp.id = 'imgFileInput'; fp.style.display = 'none';
+  document.body.appendChild(fp);
   return fp;
 }
 

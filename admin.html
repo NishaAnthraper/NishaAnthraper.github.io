@@ -330,7 +330,7 @@
     .layout-box-inner {
       position: absolute; inset: 0; overflow: hidden;
     }
-    .layout-box-inner img {
+    .layout-box-inner img, .layout-box-inner video {
       width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none;
     }
     .box-upload {
@@ -816,19 +816,31 @@ function compressImage(dataUrl, maxW, maxH, quality, cb) {
 function uploadImageFor(slotIdx) {
   const fp = getFileInput();
   fp.value = '';
+  fp.accept = 'image/*,video/mp4,video/webm,video/ogg,video/quicktime';
   fp.onchange = () => {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
-      compressImage(e.target.result, 1200, 900, 0.82, compressed => {
+    if (file.type.startsWith('video/')) {
+      reader.onload = e => {
         const p = getActive(); if (!p) return;
         if (!p.images) p.images = [];
-        p.images[slotIdx] = compressed;
+        p.images[slotIdx] = e.target.result;
         saveProjects(true);
         renderLayoutBuilder();
-      });
-    };
-    reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = e => {
+        compressImage(e.target.result, 1200, 900, 0.82, compressed => {
+          const p = getActive(); if (!p) return;
+          if (!p.images) p.images = [];
+          p.images[slotIdx] = compressed;
+          saveProjects(true);
+          renderLayoutBuilder();
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
   fp.click();
 }
@@ -938,7 +950,12 @@ function renderLayoutBuilder() {
     inner.className = 'layout-box-inner';
     inner.style.background = images[i] ? 'transparent' : color + '22';
     if (images[i]) {
-      const img = document.createElement('img'); img.src = images[i]; inner.appendChild(img);
+      const src = images[i];
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
+      const media = document.createElement(isVideo ? 'video' : 'img');
+      media.src = src;
+      if (isVideo) { media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true; }
+      inner.appendChild(media);
     } else {
       const up = document.createElement('div');
       up.className = 'box-upload';

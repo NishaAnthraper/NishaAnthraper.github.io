@@ -650,18 +650,21 @@ async function loadProjects() {
   }
 }
 
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2bGFlYXljb2VodnVmbGtxcnBzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzI2NDg2NSwiZXhwIjoyMDg4ODQwODY1fQ.P2LGEVCc4tC-keF4bwpMCX21skxi5C5a_J0kkEHfPtA';
+const sbAdmin = window.supabase.createClient('https://bvlaeaycoehvuflkqrps.supabase.co', SUPABASE_SERVICE_KEY);
+
 async function uploadVideoToStorage(file) {
   const ext = file.name.split('.').pop().toLowerCase();
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   showToast('Uploading video…');
-  const { data, error } = await sb.storage.from('portfolio-media').upload(path, file, {
+  const { data, error } = await sbAdmin.storage.from('portfolio-media').upload(path, file, {
     contentType: file.type || 'video/mp4', cacheControl: '3600', upsert: false
   });
   if (error) {
     console.error('Storage upload error:', JSON.stringify(error));
     throw error;
   }
-  const { data: urlData } = sb.storage.from('portfolio-media').getPublicUrl(path);
+  const { data: urlData } = sbAdmin.storage.from('portfolio-media').getPublicUrl(path);
   return urlData.publicUrl;
 }
 

@@ -650,8 +650,8 @@ async function loadProjects() {
   }
 }
 
-const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2bGFlYXljb2VodnVmbGtxcnBzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzI2NDg2NSwiZXhwIjoyMDg4ODQwODY1fQ.P2LGEVCc4tC-keF4bwpMCX21skxi5C5a_J0kkEHfPtA';
-const sbAdmin = window.supabase.createClient('https://bvlaeaycoehvuflkqrps.supabase.co', SUPABASE_SERVICE_KEY);
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxY291cml2aHNnY2RycHp0aGxwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Mzc2MzA2OSwiZXhwIjoyMDg5MzM5MDY5fQ.276GkyoxLAS2ksKN7iubrYxpibdjLlIl05HsfXJRuU8';
+const sbAdmin = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 async function uploadVideoToStorage(file) {
   const ext = file.name.split('.').pop().toLowerCase();

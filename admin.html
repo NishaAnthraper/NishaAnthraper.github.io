@@ -652,14 +652,17 @@ async function loadProjects() {
 
 async function uploadVideoToStorage(file) {
   const ext = file.name.split('.').pop().toLowerCase();
-  const path = `videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   showToast('Uploading video…');
-  const { error } = await sb.storage.from('portfolio-media').upload(path, file, {
-    contentType: file.type, cacheControl: '31536000', upsert: false
+  const { data, error } = await sb.storage.from('portfolio-media').upload(path, file, {
+    contentType: file.type || 'video/mp4', cacheControl: '3600', upsert: false
   });
-  if (error) throw error;
-  const { data } = sb.storage.from('portfolio-media').getPublicUrl(path);
-  return data.publicUrl;
+  if (error) {
+    console.error('Storage upload error:', JSON.stringify(error));
+    throw error;
+  }
+  const { data: urlData } = sb.storage.from('portfolio-media').getPublicUrl(path);
+  return urlData.publicUrl;
 }
 
 async function saveProjects(silent = false) {

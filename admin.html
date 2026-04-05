@@ -992,7 +992,7 @@ function renderCoverSlots() {
     slot.className = 'cover-slot';
     if (p.coverImages[i]) {
       const src = p.coverImages[i];
-      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
       const media = document.createElement(isVideo ? 'video' : 'img');
       media.src = src;
       if (isVideo) { media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true; }
@@ -1012,7 +1012,7 @@ function renderCoverSlots() {
 function uploadCoverFor(idx) {
   const fp = getFileInput();
   fp.value = '';
-  fp.accept = 'image/*,video/mp4,video/webm,video/ogg';
+  fp.accept = 'image/*,video/mp4,video/webm,video/ogg,video/quicktime';
   fp.onchange = () => {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -1228,7 +1228,7 @@ function renderAboutSlots() {
     slot.className = 'about-slot';
     const src = aboutImages[i];
     if (src) {
-      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
       const media = document.createElement(isVideo ? 'video' : 'img');
       media.src = src;
       if (isVideo) { media.autoplay = true; media.loop = true; media.muted = true; media.playsInline = true; }
@@ -1248,7 +1248,7 @@ function renderAboutSlots() {
 function uploadAboutImage(idx) {
   const fp = getFileInput();
   fp.value = '';
-  fp.accept = 'image/*,video/mp4,video/webm,video/ogg';
+  fp.accept = 'image/*,video/mp4,video/webm,video/ogg,video/quicktime';
   fp.onchange = () => {
     const file = fp.files[0]; if (!file) return;
     const reader = new FileReader();

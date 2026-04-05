@@ -221,7 +221,7 @@
       overflow: hidden; margin-bottom: var(--space-lg);
     }
     .modal-img { position: absolute; overflow: hidden; }
-    .modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .modal-img img, .modal-img video { width: 100%; height: 100%; object-fit: cover; display: block; }
     .modal-text { flex: 1; display: flex; flex-direction: column; gap: var(--space-lg); }
     .modal-section { display: flex; flex-direction: column; gap: 8px; }
     .modal-section-label {
@@ -677,7 +677,7 @@
     if (!filled.length) { strip.style.display = 'none'; return; }
     strip.style.display = '';
     strip.innerHTML = filled.map(({ src, i }) => {
-      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg)(\?|$)/i.test(src);
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
       const media = isVideo
         ? `<video src="${src}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
         : `<img src="${src}" alt="" />`;
@@ -745,7 +745,12 @@
       const l = (box.left / 100 * cw).toFixed(2);
       const w = (box.width / 100 * cw).toFixed(2);
       const h = (box.height / 100 * ref).toFixed(2);
-      return `<div class="modal-img" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;"><img src="${imgs[i]}" alt="" /></div>`;
+      const src = imgs[i];
+      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
+      const media = isVideo
+        ? `<video src="${src}" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
+        : `<img src="${src}" alt="" />`;
+      return `<div class="modal-img" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;">${media}</div>`;
     }).join('');
     const maxBottomPx = layout.reduce((max, box, i) => {
       if (!imgs[i]) return max;

@@ -152,9 +152,9 @@
       margin-bottom: var(--space-lg);
     }
     .work-img {
-      width: 100%; aspect-ratio: 16/9;
+      width: 100%; aspect-ratio: 16/7;
       overflow: hidden; background: var(--color-bg-3);
-      position: relative; display: flex; gap: 8px;
+      position: relative; display: flex; gap: 2px;
     }
     .work-img img {
       flex: 1; min-width: 0; height: 100%; object-fit: cover; display: block;
@@ -221,7 +221,7 @@
       overflow: hidden; margin-bottom: var(--space-lg);
     }
     .modal-img { position: absolute; overflow: hidden; }
-    .modal-img img, .modal-img video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .modal-text { flex: 1; display: flex; flex-direction: column; gap: var(--space-lg); }
     .modal-section { display: flex; flex-direction: column; gap: 8px; }
     .modal-section-label {
@@ -372,35 +372,6 @@
       .mobile-nav { gap: var(--space-sm); }
     }
 
-    /* ── About photo strip ───────────────────────────────────── */
-    .about-strip {
-      display: flex; align-items: flex-end; gap: 8px;
-      width: 100%; overflow: hidden;
-      padding: 0 var(--space-lg);
-      margin-bottom: var(--space-xl);
-    }
-    .about-strip-img {
-      flex: none; overflow: hidden; background: var(--color-bg-3);
-      width: calc(20% - 7px);
-    }
-    .about-strip-img--1 { aspect-ratio: 4/3; }
-    .about-strip-img--2 { aspect-ratio: 3/4; }
-    .about-strip-img--3 { aspect-ratio: 2/3; width: calc(24% - 7px); }
-    .about-strip-img--4 { aspect-ratio: 3/4; }
-    .about-strip-img--5 { aspect-ratio: 4/3; }
-    .about-strip-img img, .about-strip-img video {
-      width: 100%; height: 100%; object-fit: cover; display: block;
-    }
-    @media (max-width: 640px) {
-      .about-strip {
-        overflow-x: auto; scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch; align-items: stretch;
-      }
-      .about-strip-img {
-        width: 72vw !important; aspect-ratio: 3/4 !important; scroll-snap-align: start;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -446,15 +417,12 @@
   <div class="wrap">
     <h1 class="hero-name">Nisha<br>Anthraper.</h1>
 <div class="hero-bio">
-      <p>I lead UX and product strategy at <a href="https://www.bms.com" target="_blank" rel="noopener">Bristol Myers Squibb</a>, working across research, design, product ownership, and the operational layer that holds it all together — the part most people don't see but everyone feels when it's missing.</p>
-      <p>A decade in, I've learned that the most important work happens before anyone opens a design tool — reframing the problem, getting stakeholders to the same truth, and making sure the team is solving the right thing. That's where I focus.</p>
-      <p>I'm a generalist by nature. I've built products from 0→1 and scaled them past that. I share openly, and know from experience that the gap between a good idea and a shipped product is almost entirely about the people.</p>
+      <p>I lead UX vision and product strategy at <a href="https://www.bms.com" target="_blank" rel="noopener" style="white-space: nowrap;">Bristol Myers Squibb</a>, working across research, design, product ownership, and the operational layer that holds it all together — the part most people don't see but everyone feels when it's missing.</p>
+      <p>After a decade building and scaling products, I've learned that the most important work happens before anyone opens a design tool — reframing the problem, getting stakeholders to the same truth, and making sure teams are solving the right thing. That's where I focus.</p>
+      <p>I'm a generalist by nature — I've built products from 0→1 and scaled them past that. I lead openly, share what I know, and have learned that the gap between a good idea and a shipped product is almost entirely about the people.</p>
     </div>
   </div>
 </section>
-
-<!-- ── About photo strip ─────────────────────────────────── -->
-<div class="about-strip" id="aboutStrip"></div>
 
 <!-- ── Work ─────────────────────────────────────────────────── -->
 <section id="work" class="section">
@@ -468,7 +436,40 @@
 <section id="writing" class="section">
   <div class="wrap">
     <div class="section-label">Speaking &amp; Writing</div>
-    <div class="writing-list" id="writingList"></div>
+    <div class="writing-list">
+      <a class="writing-item" href="#" target="_blank" rel="noopener">
+        <span class="writing-year">2024</span>
+        <div class="writing-body">
+          <span class="writing-type">Article</span>
+          <div class="writing-title">Unlocking Insights: Data Exploration for UX Researchers</div>
+          <span class="writing-pub">Medium</span>
+        </div>
+      </a>
+      <a class="writing-item" href="#" target="_blank" rel="noopener">
+        <span class="writing-year">2023</span>
+        <div class="writing-body">
+          <span class="writing-type">Talk</span>
+          <div class="writing-title">Designing for Ambiguity: UX in Regulated Environments</div>
+          <span class="writing-pub">UX Insider Conference</span>
+        </div>
+      </a>
+      <a class="writing-item" href="#" target="_blank" rel="noopener">
+        <span class="writing-year">2023</span>
+        <div class="writing-body">
+          <span class="writing-type">Article</span>
+          <div class="writing-title">When the Brief Is Wrong: How to Reframe Before You Redesign</div>
+          <span class="writing-pub">Medium</span>
+        </div>
+      </a>
+      <a class="writing-item" href="#" target="_blank" rel="noopener">
+        <span class="writing-year">2022</span>
+        <div class="writing-body">
+          <span class="writing-type">Talk</span>
+          <div class="writing-title">Research as a Leadership Practice</div>
+          <span class="writing-pub">Women in UX Summit</span>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -505,17 +506,13 @@
 <div class="footer-wrap">
   <footer>
     <span class="footer-copy">© 2026 Nisha Anthraper</span>
-    <span class="footer-copy">Built in a Claude Code ↔ Figma loop — design system & portfolio</span>
+    <span class="footer-copy">Built in a Claude Code ↔ Figma loop — tokens, design system, and portfolio</span>
   </footer>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // ── CMS data ─────────────────────────────────────────────────
   const STORAGE_KEY = 'nisha_projects';
-  const SUPABASE_URL = 'https://gqcourivhsgcdrpzthlp.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxY291cml2aHNnY2RycHp0aGxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjMwNjksImV4cCI6MjA4OTMzOTA2OX0.gtR_xK62Lg_x5d6Ix_2f4LpoRNV7HxMkKU3BKfqZXVo';
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const SEED = [
     {
@@ -622,6 +619,14 @@
     return html;
   }
 
+  function getProjects() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try { return JSON.parse(stored); } catch(e) {}
+    }
+    return SEED;
+  }
+
   function renderWorkList(projects) {
     const list = document.getElementById('workList');
     list.innerHTML = projects.map(p => `
@@ -634,17 +639,11 @@
         <p class="work-desc">${p.description}</p>
         <div class="work-img">${
           p.coverImages && p.coverImages.filter(Boolean).length
-            ? p.coverImages.filter(Boolean).map(src => /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src)
-                ? `<video data-blobsrc="${src}" autoplay loop muted playsinline style="flex:1;min-width:0;height:100%;object-fit:cover;display:block;"></video>`
-                : `<img src="${src}" alt="${p.title}" />`).join('')
+            ? p.coverImages.filter(Boolean).map(src => `<img src="${src}" alt="${p.title}" />`).join('')
             : `<div class="work-img-placeholder"></div>`
         }</div>
       </a>
     `).join('');
-    list.querySelectorAll('video[data-blobsrc]').forEach(v => {
-      setVideoSrc(v, v.dataset.blobsrc);
-      v.removeAttribute('data-blobsrc');
-    });
     list.querySelectorAll('.work-item').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
@@ -654,76 +653,8 @@
     });
   }
 
-  const WRITING_SEED = [
-    { id: 'writing-1', title: 'Unlocking Insights: Data Exploration for UX Researchers', year: '2024', type: 'Article', destination: 'Medium', link: '', description: '' },
-    { id: 'writing-2', title: 'Designing for Ambiguity: UX in Regulated Environments', year: '2023', type: 'Talk', destination: 'UX Insider Conference', link: '', description: '' },
-    { id: 'writing-3', title: 'When the Brief Is Wrong: How to Reframe Before You Redesign', year: '2023', type: 'Article', destination: 'Medium', link: '', description: '' },
-    { id: 'writing-4', title: 'Research as a Leadership Practice', year: '2022', type: 'Talk', destination: 'Women in UX Summit', link: '', description: '' }
-  ];
-
-  function renderWritingList(items) {
-    const list = document.getElementById('writingList');
-    list.innerHTML = items.map(w => `
-      <a class="writing-item" href="${w.link || '#'}" ${w.link ? 'target="_blank" rel="noopener"' : ''}>
-        <span class="writing-year">${w.year}</span>
-        <div class="writing-body">
-          <span class="writing-type">${w.type}</span>
-          <div class="writing-title">${w.title}</div>
-          <span class="writing-pub">${w.destination}</span>
-        </div>
-      </a>
-    `).join('');
-  }
-
-  function dataUrlToBlob(dataUrl) {
-    const [header, data] = dataUrl.split(',');
-    const mime = header.match(/:(.*?);/)[1];
-    const binary = atob(data);
-    const arr = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
-    return new Blob([arr], { type: mime });
-  }
-
-  function setVideoSrc(video, src) {
-    video.src = src.startsWith('data:') ? URL.createObjectURL(dataUrlToBlob(src)) : src;
-  }
-
-  function renderAboutStrip(images) {
-    const strip = document.getElementById('aboutStrip');
-    const filled = (images || []).map((src, i) => src ? { src, i } : null).filter(Boolean);
-    if (!filled.length) { strip.style.display = 'none'; return; }
-    strip.style.display = '';
-    strip.innerHTML = '';
-    filled.forEach(({ src, i }) => {
-      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
-      const wrap = document.createElement('div');
-      wrap.className = `about-strip-img about-strip-img--${i + 1}`;
-      if (isVideo) {
-        const video = document.createElement('video');
-        video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
-        video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-        setVideoSrc(video, src);
-        wrap.appendChild(video);
-      } else {
-        wrap.innerHTML = `<img src="${src}" alt="" />`;
-      }
-      strip.appendChild(wrap);
-    });
-  }
-
-  (async () => {
-    const [projectsRes, writingRes, aboutRes] = await Promise.all([
-      sb.from('portfolio_data').select('value').eq('key', 'projects').single(),
-      sb.from('portfolio_data').select('value').eq('key', 'writing').single(),
-      sb.from('portfolio_data').select('value').eq('key', 'about_images').single()
-    ]);
-    const allProjects = (projectsRes.data && projectsRes.data.value) ? projectsRes.data.value : SEED;
-    const allWriting  = (writingRes.data  && writingRes.data.value)  ? writingRes.data.value  : WRITING_SEED;
-    const aboutImages = (aboutRes.data    && aboutRes.data.value)    ? aboutRes.data.value    : [];
-    renderWorkList(allProjects);
-    renderWritingList(allWriting);
-    renderAboutStrip(aboutImages);
-  })();
+  const allProjects = getProjects();
+  renderWorkList(allProjects);
 
   // ── Project modal ───────────────────────────────────────────
   const modal      = document.getElementById('projectModal');
@@ -763,33 +694,16 @@
     const imgs   = project.images || [];
     const modalImages = document.getElementById('modalImages');
     modalImages.style.cssText = '';
-    modalImages.innerHTML = '';
     const cw = modalImages.offsetWidth;
     const ref = cw * 2;
-    layout.forEach((box, i) => {
-      if (!imgs[i]) return;
+    modalImages.innerHTML = layout.map((box, i) => {
+      if (!imgs[i]) return '';
       const t = (box.top / 100 * ref).toFixed(2);
       const l = (box.left / 100 * cw).toFixed(2);
       const w = (box.width / 100 * cw).toFixed(2);
       const h = (box.height / 100 * ref).toFixed(2);
-      const src = imgs[i];
-      const isVideo = /^data:video\/|\.(?:mp4|webm|ogg|mov)(\?|$)/i.test(src);
-      const wrap = document.createElement('div');
-      wrap.className = 'modal-img';
-      wrap.style.cssText = `left:${l}px;top:${t}px;width:${w}px;height:${h}px;`;
-      if (isVideo) {
-        const video = document.createElement('video');
-        video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true;
-        video.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-        setVideoSrc(video, src);
-        wrap.appendChild(video);
-      } else {
-        const img = document.createElement('img');
-        img.src = src; img.alt = '';
-        wrap.appendChild(img);
-      }
-      modalImages.appendChild(wrap);
-    });
+      return `<div class="modal-img" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px;"><img src="${imgs[i]}" alt="" /></div>`;
+    }).join('');
     const maxBottomPx = layout.reduce((max, box, i) => {
       if (!imgs[i]) return max;
       return Math.max(max, (box.top + box.height) / 100 * ref);
